@@ -42,8 +42,6 @@ func (m *MPDconn) EstablishConn() error {
 
 	m.conn = conn
 
-	fmt.Println(m.conn)
-
 	m.buf = bufio.NewReader(m.conn)
 
 	status, err := m.buf.ReadString('\n')
