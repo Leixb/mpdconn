@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"os"
 	"strconv"
@@ -25,8 +24,6 @@ func NewMPDconn(URL string) (*MPDconn, error) {
 	m.url = URL
 
 	err := m.EstablishConn()
-
-	log.Println(m.conn)
 
 	return m, err
 
@@ -75,7 +72,7 @@ func (m MPDconn) Request(req string) (map[string]string, error) {
 	for {
 		dtype, value, err := m.readResponse()
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 
 		switch dtype {
@@ -147,7 +144,7 @@ func (m MPDconn) DownloadCover(name string, file string) error {
 
 			dtype, value, err := m.readResponse()
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
 
 			if dtype == "OK" {
