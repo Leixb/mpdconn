@@ -29,7 +29,7 @@ func NewMPDconn(URL string) (*MPDconn, error) {
 		return nil, err
 	}
 
-	m.buf = bufio.NewReader(m.Conn)
+	m.buf = bufio.NewReader(m.conn)
 
 	status, err := m.buf.ReadString('\n')
 
