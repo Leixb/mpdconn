@@ -24,8 +24,13 @@ func NewMPDconn(URL string) (*MPDconn, error) {
 	m.url = URL
 
 	err := m.EstablishConn()
+	defer m.Close()
 
-	return m, err
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
 
 }
 
@@ -33,10 +38,6 @@ func (m *MPDconn) EstablishConn() error {
 
 	conn, err := net.Dial("tcp", m.url)
 	if err != nil {
-		return err
-	}
-
-	if err = conn.(*net.TCPConn).SetKeepAlive(true); err != nil {
 		return err
 	}
 
@@ -49,17 +50,29 @@ func (m *MPDconn) EstablishConn() error {
 	s := strings.Split(status, " ")
 
 	if s[0] != "OK" {
-		return errors.New(status)
+		return errors.New("NOT OK" + status)
 	}
 
 	return nil
 
 }
 
+func (m MPDconn) Close() {
+	m.conn.Close()
+}
+
 func (m MPDconn) Request(req string) (map[string]string, error) {
 
+	err := m.EstablishConn()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer m.Close()
+
 	req = strings.TrimSuffix(req, "\n") // remove \n so we have no duplicates
-	_, err := m.conn.Write([]byte(req + "\n"))
+	_, err = m.conn.Write([]byte(req + "\n"))
 
 	if err != nil {
 		return nil, err
@@ -121,6 +134,12 @@ func (m MPDconn) readResponse() (string, string, error) {
 }
 
 func (m MPDconn) DownloadCover(name string, file string) error {
+
+	err := m.EstablishConn()
+	if err != nil {
+		return err
+	}
+	defer m.Close()
 
 	offset, size, bsize := 0, 1, 0
 
