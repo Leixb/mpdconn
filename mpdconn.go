@@ -15,18 +15,37 @@ import (
 type MPDconn struct {
 	conn net.Conn
 	buf  *bufio.Reader
+	url  string
 }
 
 func NewMPDconn(URL string) (*MPDconn, error) {
 
 	m := new(MPDconn)
 
-	conn, err := net.Dial("tcp", URL)
+	m.url = URL
+
+	err := m.EstablishConn()
+
+	log.Println(m.conn)
+
+	return m, err
+
+}
+
+func (m *MPDconn) EstablishConn() error {
+
+	conn, err := net.Dial("tcp", m.url)
+	if err != nil {
+		return err
+	}
+
+	if err = conn.(*net.TCPConn).SetKeepAlive(true); err != nil {
+		return err
+	}
+
 	m.conn = conn
 
-	if err != nil {
-		return nil, err
-	}
+	fmt.Println(m.conn)
 
 	m.buf = bufio.NewReader(m.conn)
 
@@ -35,10 +54,10 @@ func NewMPDconn(URL string) (*MPDconn, error) {
 	s := strings.Split(status, " ")
 
 	if s[0] != "OK" {
-		return nil, errors.New(status)
+		return errors.New(status)
 	}
 
-	return m, nil
+	return nil
 
 }
 
