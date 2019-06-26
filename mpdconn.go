@@ -1,4 +1,3 @@
-// Package main provides tcp client
 package mpdconn
 
 import (
