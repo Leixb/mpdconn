@@ -24,11 +24,11 @@ func NewMPDconn(URL string) (*MPDconn, error) {
 	m.url = URL
 
 	err := m.EstablishConn()
-	defer m.Close()
 
 	if err != nil {
 		return nil, err
 	}
+	defer m.Close()
 
 	return m, nil
 
