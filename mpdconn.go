@@ -133,7 +133,7 @@ func (m MPDconn) readResponse() (string, string, error) {
 
 }
 
-func (m MPDconn) DownloadCover(name string, file string) error {
+func (m MPDconn) DownloadCover(name string, file *os.File) error {
 
 	err := m.EstablishConn()
 	if err != nil {
@@ -143,13 +143,14 @@ func (m MPDconn) DownloadCover(name string, file string) error {
 
 	offset, size, bsize := 0, 1, 0
 
-	f, err := os.Create(file)
-	if err != nil {
+	if err = file.Truncate(0); err != nil {
 		return err
 	}
-	defer f.Close()
+	if _, err = file.Seek(0, 0); err != nil {
+		return err
+	}
 
-	w := bufio.NewWriter(f)
+	w := bufio.NewWriter(file)
 	defer w.Flush()
 
 	for offset < size {
