@@ -13,17 +13,18 @@ import (
 	"strings"
 )
 
-type mpdConn struct {
+// MpdConn MPD connection object
+type MpdConn struct {
 	conn net.Conn
 	buf  *bufio.Reader
 	url  string
 }
 
-// NewMpdConn creates a new mpdConn object to the MPD server at URL
+// NewMpdConn creates a new MpdConn object to the MPD server at URL
 // and checks that the connection can be established
-func NewMpdConn(URL string) (*mpdConn, error) {
+func NewMpdConn(URL string) (*MpdConn, error) {
 
-	m := new(mpdConn)
+	m := new(MpdConn)
 
 	m.url = URL
 
@@ -39,7 +40,7 @@ func NewMpdConn(URL string) (*mpdConn, error) {
 }
 
 // establishConn establishes a connection. It fails if MPD does not answer OK
-func (m *mpdConn) establishConn() error {
+func (m *MpdConn) establishConn() error {
 
 	conn, err := net.Dial("tcp", m.url)
 	if err != nil {
@@ -61,12 +62,12 @@ func (m *mpdConn) establishConn() error {
 }
 
 // close closes de underlying MPD connection
-func (m mpdConn) close() {
+func (m MpdConn) close() {
 	m.conn.Close()
 }
 
 // Request sends a request to the MPD daemon and resturns the answer as a map
-func (m mpdConn) Request(req string) (map[string]string, error) {
+func (m MpdConn) Request(req string) (map[string]string, error) {
 
 	err := m.establishConn()
 
@@ -118,7 +119,7 @@ func (m mpdConn) Request(req string) (map[string]string, error) {
 }
 
 // readResponse reads MPD response and parses it as type and value
-func (m mpdConn) readResponse() (string, string, error) {
+func (m MpdConn) readResponse() (string, string, error) {
 
 	data, err := m.buf.ReadString('\n')
 	if err != nil {
@@ -140,7 +141,7 @@ func (m mpdConn) readResponse() (string, string, error) {
 }
 
 // DownloadCover downloads the cover for the song specified into the given file
-func (m mpdConn) DownloadCover(name string, file *os.File) error {
+func (m MpdConn) DownloadCover(name string, file *os.File) error {
 
 	err := m.establishConn()
 	if err != nil {
