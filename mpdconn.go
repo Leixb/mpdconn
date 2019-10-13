@@ -45,6 +45,9 @@ func (m *MpdConn) establishConn() error {
 
 	m.buf = bufio.NewReader(m.conn)
 	status, err := m.buf.ReadString('\n')
+	if err != nil {
+		return err
+	}
 
 	if strings.Split(status, " ")[0] != "OK" {
 		return errors.New("NOT OK: " + status)
