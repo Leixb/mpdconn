@@ -98,8 +98,6 @@ func (m MpdConn) Request(req string) (map[string]string, error) {
 			if err != nil {
 				return resp, err
 			}
-		default:
-			return resp, errors.New("Unknown response type " + dtype)
 		}
 		resp[dtype] = value
 	}
