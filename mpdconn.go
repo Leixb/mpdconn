@@ -23,38 +23,30 @@ type MpdConn struct {
 // NewMpdConn creates a new MpdConn object to the MPD server at URL
 // and checks that the connection can be established
 func NewMpdConn(URL string) (*MpdConn, error) {
-
-	m := new(MpdConn)
-
-	m.url = URL
+	m := &MpdConn{nil, nil, URL}
 
 	err := m.establishConn()
-
 	if err != nil {
 		return nil, err
 	}
 	defer m.close()
 
 	return m, nil
-
 }
 
 // establishConn establishes a connection. It fails if MPD does not answer OK
 func (m *MpdConn) establishConn() error {
+	var err error
 
-	conn, err := net.Dial("tcp", m.url)
+	m.conn, err = net.Dial("tcp", m.url)
 	if err != nil {
 		return err
 	}
 
-	m.conn = conn
-
 	m.buf = bufio.NewReader(m.conn)
 	status, err := m.buf.ReadString('\n')
 
-	s := strings.Split(status, " ")
-
-	if s[0] != "OK" {
+	if strings.Split(status, " ")[0] != "OK" {
 		return errors.New("NOT OK: " + status)
 	}
 
@@ -68,13 +60,10 @@ func (m MpdConn) close() {
 
 // Request sends a request to the MPD daemon and returns the answer as a map
 func (m MpdConn) Request(req string) (map[string]string, error) {
-
 	err := m.establishConn()
-
 	if err != nil {
 		return nil, err
 	}
-
 	defer m.close()
 
 	req = strings.TrimSuffix(req, "\n") // remove \n so we have no duplicates
@@ -112,15 +101,12 @@ func (m MpdConn) Request(req string) (map[string]string, error) {
 		default:
 			return resp, errors.New("Unknown response type " + dtype)
 		}
-
 		resp[dtype] = value
-
 	}
 }
 
 // readResponse reads MPD response and parses it as type and value
 func (m MpdConn) readResponse() (string, string, error) {
-
 	data, err := m.buf.ReadString('\n')
 	if err != nil {
 		return data, data, err
@@ -137,12 +123,10 @@ func (m MpdConn) readResponse() (string, string, error) {
 	dtype := strings.TrimSuffix(_data[0], ":")
 
 	return dtype, value, nil
-
 }
 
 // DownloadCover downloads the cover for the song specified into the given file
 func (m MpdConn) DownloadCover(name string, file *os.File) error {
-
 	err := m.establishConn()
 	if err != nil {
 		return err
@@ -209,9 +193,6 @@ func (m MpdConn) DownloadCover(name string, file *os.File) error {
 				offset = offset + n
 			}
 		}
-
 	}
-
 	return nil
-
 }
