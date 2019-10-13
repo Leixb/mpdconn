@@ -1,9 +1,9 @@
 # mpdconn
 ![GitHub](https://img.shields.io/github/license/Leixb/mpdconn)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/Leixb/mpdconn)
-[![Build Status](https://travis-ci.com/Leixb/jutge.svg?branch=master)](https://travis-ci.com/Leixb/mpdconn)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Leixb/jutge)](https://goreportcard.com/report/github.com/Leixb/mpdconn)
-[![GoDoc](https://godoc.org/github.com/Leixb/jutge?status.svg)](https://godoc.org/github.com/Leixb/mpdconn)
+[![Build Status](https://travis-ci.com/Leixb/mpdconn.svg?branch=master)](https://travis-ci.com/Leixb/mpdconn)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Leixb/mpdconn)](https://goreportcard.com/report/github.com/Leixb/mpdconn)
+[![GoDoc](https://godoc.org/github.com/Leixb/mpdconn?status.svg)](https://godoc.org/github.com/Leixb/mpdconn)
 
 Simple wrapper around a TCP connection to an MPD daemon with very basic functionality. 
 This library is used by [Leixb/MPD_goclient](https://github.com/Leixb/MPD_goclient)
