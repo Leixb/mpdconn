@@ -1,3 +1,5 @@
+// Package mpdconn provides a simple wrapper around a tcp connection to an MPD daemon
+// with very basic funcionality.
 package mpdconn
 
 import (
@@ -11,30 +13,33 @@ import (
 	"strings"
 )
 
-type MPDconn struct {
+type mpdConn struct {
 	conn net.Conn
 	buf  *bufio.Reader
 	url  string
 }
 
-func NewMPDconn(URL string) (*MPDconn, error) {
+// NewMpdConn creates a new mpdConn object to the MPD server at URL
+// and checks that the connection can be established
+func NewMpdConn(URL string) (*mpdConn, error) {
 
-	m := new(MPDconn)
+	m := new(mpdConn)
 
 	m.url = URL
 
-	err := m.EstablishConn()
+	err := m.establishConn()
 
 	if err != nil {
 		return nil, err
 	}
-	defer m.Close()
+	defer m.close()
 
 	return m, nil
 
 }
 
-func (m *MPDconn) EstablishConn() error {
+// establishConn establishes a connection. It fails if MPD does not answer OK
+func (m *mpdConn) establishConn() error {
 
 	conn, err := net.Dial("tcp", m.url)
 	if err != nil {
@@ -44,32 +49,32 @@ func (m *MPDconn) EstablishConn() error {
 	m.conn = conn
 
 	m.buf = bufio.NewReader(m.conn)
-
 	status, err := m.buf.ReadString('\n')
 
 	s := strings.Split(status, " ")
 
 	if s[0] != "OK" {
-		return errors.New("NOT OK" + status)
+		return errors.New("NOT OK: " + status)
 	}
 
 	return nil
-
 }
 
-func (m MPDconn) Close() {
+// close closes de underlying MPD connection
+func (m mpdConn) close() {
 	m.conn.Close()
 }
 
-func (m MPDconn) Request(req string) (map[string]string, error) {
+// Request sends a request to the MPD daemon and resturns the answer as a map
+func (m mpdConn) Request(req string) (map[string]string, error) {
 
-	err := m.EstablishConn()
+	err := m.establishConn()
 
 	if err != nil {
 		return nil, err
 	}
 
-	defer m.Close()
+	defer m.close()
 
 	req = strings.TrimSuffix(req, "\n") // remove \n so we have no duplicates
 	_, err = m.conn.Write([]byte(req + "\n"))
@@ -103,16 +108,17 @@ func (m MPDconn) Request(req string) (map[string]string, error) {
 			if err != nil {
 				return resp, err
 			}
+		default:
+			return resp, errors.New("Unknown response type " + dtype)
 		}
 
 		resp[dtype] = value
 
 	}
-
-	return resp, nil
 }
 
-func (m MPDconn) readResponse() (string, string, error) {
+// readResponse reads MPD response and parses it as type and value
+func (m mpdConn) readResponse() (string, string, error) {
 
 	data, err := m.buf.ReadString('\n')
 	if err != nil {
@@ -133,13 +139,14 @@ func (m MPDconn) readResponse() (string, string, error) {
 
 }
 
-func (m MPDconn) DownloadCover(name string, file *os.File) error {
+// DownloadCover downloads the cover for the song specified into the given file
+func (m mpdConn) DownloadCover(name string, file *os.File) error {
 
-	err := m.EstablishConn()
+	err := m.establishConn()
 	if err != nil {
 		return err
 	}
-	defer m.Close()
+	defer m.close()
 
 	offset, size, bsize := 0, 1, 0
 
