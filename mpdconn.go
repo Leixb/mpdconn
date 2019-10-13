@@ -1,5 +1,5 @@
-// Package mpdconn provides a simple wrapper around a tcp connection to an MPD daemon
-// with very basic funcionality.
+// Package mpdconn provides a simple wrapper around a TCP connection to an MPD daemon
+// with very basic functionality.
 package mpdconn
 
 import (
@@ -66,7 +66,7 @@ func (m MpdConn) close() {
 	m.conn.Close()
 }
 
-// Request sends a request to the MPD daemon and resturns the answer as a map
+// Request sends a request to the MPD daemon and returns the answer as a map
 func (m MpdConn) Request(req string) (map[string]string, error) {
 
 	err := m.establishConn()
